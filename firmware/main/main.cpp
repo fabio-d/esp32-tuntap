@@ -22,7 +22,14 @@ static wifi_interface_t wirelessInterface;
 static int staticIpAddress[4], staticGateway[4], staticNetMask[4]; // STA only
 static uint8_t wirelessProtocols;
 
+// DOIT ESP32 DEVKIT V1 (default board)
 static constexpr gpio_num_t ledPin = GPIO_NUM_2;
+static constexpr int ledOffValue = 0;
+
+// ESP32-CAM
+//static constexpr gpio_num_t ledPin = GPIO_NUM_33;
+//static constexpr int ledOffValue = 1;
+
 static volatile bool ledShouldBlink, ledShouldBeOff = true;
 
 static RingbufHandle_t wifiToSerial, serialToWifi;
@@ -35,19 +42,19 @@ static void ledTask(void *)
 	{
 		if (ledShouldBeOff)
 		{
-			gpio_set_level(ledPin, 0); // off
+			gpio_set_level(ledPin, ledOffValue); // off
 		}
 		else if (ledShouldBlink)
 		{
-			gpio_set_level(ledPin, 0); // off
+			gpio_set_level(ledPin, ledOffValue); // off
 			vTaskDelay(20 / portTICK_PERIOD_MS);
 
-			gpio_set_level(ledPin, 1); // on
+			gpio_set_level(ledPin, !ledOffValue); // on
 			ledShouldBlink = false;
 		}
 		else
 		{
-			gpio_set_level(ledPin, 1); // on
+			gpio_set_level(ledPin, !ledOffValue); // on
 		}
 
 		vTaskDelay(10 / portTICK_PERIOD_MS);

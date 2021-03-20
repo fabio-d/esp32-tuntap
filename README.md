@@ -143,3 +143,30 @@ Lastly, it can be flashed to the connected board with:
 ```shell script
 idf.py flash
 ```
+
+## Tested boards
+
+### DOIT ESP32 DEVKIT V1 ([link](https://circuits4you.com/2018/12/31/esp32-devkit-esp32-wroom-gpio-pinout))
+
+This is this project's main development board. Everything works out of the box.
+
+### ESP32-CAM ([link](https://randomnerdtutorials.com/esp32-cam-video-streaming-face-recognition-arduino-ide))
+
+Modify `firmware/main/main.cpp` before building the firmware, to select the
+proper LED pin and polarity (by commenting the default values and
+uncommenting those for ESP32-CAM):
+
+```C++
+// ESP32-CAM
+static constexpr gpio_num_t ledPin = GPIO_NUM_33;
+static constexpr int ledOffValue = 1;
+```
+
+Also, in this board the UART cannot reset the ESP32. Therefore, it will be
+necessary to reset it manually every time `esp32-tuntap.py` is started (by
+pressing the reset button on the back of the board).
+
+### Other boards
+
+Other ESP32 boards are likely to work too, either out of the box or with
+minimal modifications to pin mappings.
