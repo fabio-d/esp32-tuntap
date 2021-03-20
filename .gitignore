@@ -1,0 +1,9 @@
+# Build/execution environment directories (if configured according to the README
+# instructions)
+/.espressif
+/esp32-tuntap-venv
+
+# Firmware output files (no need to commit sdkconfig because it is regenerated
+# by "idf.py build")
+/firmware/build
+/firmware/sdkconfig
