@@ -145,12 +145,13 @@ def main():
 
     ap = subparsers.add_parser('ap', parents=[serial_opts, wireless_opts, tuntap_opts],
                                help='Access Point (AP) exposed as a TAP interface')
-    ap.add_argument('--add-to-bridge', metavar='BRIDGE_NAME',
-                    help='add the interface to the specified bridge')
-    ap.add_argument('--local-address', type=ipaddress.IPv4Interface, metavar='ADDRESS/MASK',
-                    help='set local IP address and network mask')
+    ap_excl = ap.add_mutually_exclusive_group()
+    ap_excl.add_argument('--add-to-bridge', metavar='BRIDGE_NAME',
+                         help='add the interface to the specified bridge')
+    ap_excl.add_argument('--local-address', type=ipaddress.IPv4Interface, metavar='ADDRESS/MASK',
+                         help='set local IP address and network mask')
     ap.add_argument('--gateway-address', type=ipaddress.IPv4Address, metavar='ADDRESS',
-                    help='set default gateway IP address')
+                    help='set default gateway IP address (requires --local-address and --up)')
     ap.set_defaults(interface_flags=pytun.IFF_TAP, setup_func=setup_ap)
 
     sta = subparsers.add_parser('sta', parents=[serial_opts, wireless_opts, tuntap_opts],
@@ -158,12 +159,14 @@ def main():
     sta.add_argument('--local-address', required=True, type=ipaddress.IPv4Interface, metavar='ADDRESS/MASK',
                      help='set local IP address and network mask')
     sta.add_argument('--gateway-address', type=ipaddress.IPv4Address, metavar='ADDRESS',
-                     help='set default gateway IP address')
+                     help='set default gateway IP address (requires --local-address and --up)')
     sta.set_defaults(interface_flags=pytun.IFF_TUN, setup_func=setup_sta)
 
     args = parser.parse_args()
     if args.gateway_address is not None and (args.local_address is None or not args.up):
         parser.error('--gateway-address requires --local-address and --up too')
+    if args.local_address is not None and not (0 < args.local_address.network.prefixlen < 32):
+        parser.error('invalid network mask in --local-address value')
 
     mcu = MCU(args.serial, args.baud, args.skip_init, args.debug_mcu_output)
 
