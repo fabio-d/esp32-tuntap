@@ -33,13 +33,13 @@ interfaces!
 
 #### Client (STA) mode
 
-To connect to your home network with static IP `192.168.1.123` (DHCP is not
-supported yet), assuming your router's IP address is `192.168.1.1`:
+To connect to an existing network with static IP `192.168.1.123` (DHCP client is
+not supported yet), assuming your router's IP address is `192.168.1.1`:
 
 ```shell script
 # Run the following commands as root (with either "sudo -s" or "su")
 
-# Configure DNS server
+# Configure DNS server (8.8.8.8 is Google's DNS server)
 echo nameserver 8.8.8.8 > /etc/resolv.conf
 
 # Run esp32-tuntap agent
@@ -69,6 +69,25 @@ esp32-tuntap-venv/bin/python esp32-tuntap.py ap \
   --local-address 192.168.199.1/24 \
   --up
 ```
+
+Then, open another shell and run the following commands to run a DHCP+DNS server
+on your new wireless network:
+
+```shell script
+# Run the following commands as root (with either "sudo -s" or "su")
+
+# Ensure dnsmasq is installed
+apt install dnsmasq
+
+# Launch it ("tap0" is the network interface created by esp32-tuntap.py)
+dnsmasq --interface=tap0 --no-daemon --dhcp-range=192.168.199.2,192.168.199.254,255.255.255.0
+```
+
+Alternatively, if you do not need a DHCP server, clients can be configured with
+static IP addresses and the following parameters:
+ - IP address: any address in range `192.168.199.2`-`192.168.199.254`
+ - Default gateway: `192.168.199.1`
+ - DNS server: `8.8.8.8` (to use Google's) or your own
 
 #### Access Point (AP) mode, attached to a bridge
 
